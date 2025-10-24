@@ -247,6 +247,99 @@ const ProductDetail = () => {
               )}
             </div>
 
+            {/* Product Details Section */}
+            {(product?.highlights?.length || product?.specs?.length || product?.longDescription) && (
+              <div id="details" className="mt-12 pt-8 border-t border-border">
+                <h2 className="text-2xl font-bold tracking-tighter mb-8">Product Details</h2>
+
+                {/* Highlights Section */}
+                {product?.highlights && product.highlights.length > 0 && (
+                  <div id="highlights" className="mb-8">
+                    <h3 className="text-lg font-semibold mb-4">Highlights</h3>
+                    <ul className="space-y-2">
+                      {product.highlights.map((highlight, idx) => (
+                        <li key={idx} className="flex items-start gap-3">
+                          <span className="text-primary mt-1">•</span>
+                          <span className="text-foreground">{highlight}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Specifications Section */}
+                {product?.specs && product.specs.length > 0 && (
+                  <div id="specs" className="mb-8">
+                    <h3 className="text-lg font-semibold mb-4">Specifications</h3>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <tbody>
+                          {product.specs.map((spec, idx) => (
+                            <tr key={idx} className={idx % 2 === 0 ? 'bg-muted/30' : ''}>
+                              <td className="px-4 py-3 font-medium text-foreground w-1/3 md:w-1/4">{spec.key}</td>
+                              <td className="px-4 py-3 text-muted-foreground">{spec.value}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Description Section */}
+                {product?.longDescription && (
+                  <div id="description" className="mb-8">
+                    <h3 className="text-lg font-semibold mb-4">Description</h3>
+                    <div className="text-muted-foreground leading-relaxed">
+                      {descriptionExpanded || (product.longDescription.length <= 250) ? (
+                        <div
+                          className="prose prose-sm max-w-none"
+                          dangerouslySetInnerHTML={{
+                            __html: product.longDescription
+                              .replace(/&/g, '&amp;')
+                              .replace(/</g, '&lt;')
+                              .replace(/>/g, '&gt;')
+                              .replace(/"/g, '&quot;')
+                              .replace(/'/g, '&#039;')
+                              .replace(/\n/g, '<br />')
+                          }}
+                        />
+                      ) : (
+                        <div
+                          className="prose prose-sm max-w-none"
+                          dangerouslySetInnerHTML={{
+                            __html: `${product.longDescription.substring(0, 250)}...`.replace(/&/g, '&amp;')
+                              .replace(/</g, '&lt;')
+                              .replace(/>/g, '&gt;')
+                              .replace(/"/g, '&quot;')
+                              .replace(/'/g, '&#039;')
+                              .replace(/\n/g, '<br />')
+                          }}
+                        />
+                      )}
+                      {product.longDescription.length > 250 && (
+                        <button
+                          onClick={() => setDescriptionExpanded(!descriptionExpanded)}
+                          className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium mt-4"
+                        >
+                          {descriptionExpanded ? (
+                            <>
+                              Read less
+                              <ChevronUp className="h-4 w-4" />
+                            </>
+                          ) : (
+                            <>
+                              Read more
+                              <ChevronDown className="h-4 w-4" />
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
           </div>
         </div>
