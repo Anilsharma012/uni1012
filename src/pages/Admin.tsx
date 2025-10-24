@@ -1654,6 +1654,104 @@ const handleProductSubmit = async (e: React.FormEvent) => {
                 </div>
               </div>
 
+              <div>
+                <Label htmlFor="longDescription">Long Description (Rich Text)</Label>
+                <Textarea
+                  id="longDescription"
+                  value={productForm.longDescription}
+                  onChange={(e) => setProductForm((p) => ({ ...p, longDescription: e.target.value }))}
+                  placeholder="Detailed product description, benefits, usage instructions..."
+                  rows={4}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="highlights">Highlights (Max 8 bullet points)</Label>
+                <div className="space-y-2 mt-2">
+                  {[...Array(Math.max(1, productForm.highlights.length + 1))].map((_, idx) => (
+                    idx < 8 && (
+                      <div key={idx} className="flex items-center gap-2">
+                        <Input
+                          value={productForm.highlights[idx] ?? ''}
+                          onChange={(e) => {
+                            const newHighlights = [...productForm.highlights];
+                            newHighlights[idx] = e.target.value;
+                            setProductForm((p) => ({ ...p, highlights: newHighlights }));
+                          }}
+                          placeholder={`Highlight ${idx + 1}`}
+                        />
+                        {productForm.highlights[idx] && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => {
+                              setProductForm((p) => ({
+                                ...p,
+                                highlights: p.highlights.filter((_, i) => i !== idx),
+                              }));
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                    )
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label>Specifications</Label>
+                <div className="space-y-3 mt-2">
+                  {[...Array(Math.max(1, productForm.specs.length + 1))].map((_, idx) => (
+                    <div key={idx} className="flex gap-2 items-end">
+                      <div className="flex-1">
+                        <Label className="text-xs text-muted-foreground">Key</Label>
+                        <Input
+                          value={productForm.specs[idx]?.key ?? ''}
+                          onChange={(e) => {
+                            const newSpecs = [...productForm.specs];
+                            if (!newSpecs[idx]) newSpecs[idx] = { key: '', value: '' };
+                            newSpecs[idx].key = e.target.value;
+                            setProductForm((p) => ({ ...p, specs: newSpecs }));
+                          }}
+                          placeholder="e.g., Material"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <Label className="text-xs text-muted-foreground">Value</Label>
+                        <Input
+                          value={productForm.specs[idx]?.value ?? ''}
+                          onChange={(e) => {
+                            const newSpecs = [...productForm.specs];
+                            if (!newSpecs[idx]) newSpecs[idx] = { key: '', value: '' };
+                            newSpecs[idx].value = e.target.value;
+                            setProductForm((p) => ({ ...p, specs: newSpecs }));
+                          }}
+                          placeholder="e.g., 100% Cotton"
+                        />
+                      </div>
+                      {productForm.specs[idx]?.key && productForm.specs[idx]?.value && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => {
+                            setProductForm((p) => ({
+                              ...p,
+                              specs: p.specs.filter((_, i) => i !== idx),
+                            }));
+                          }}
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <Button type="submit" className="w-full" disabled={saving}>
                 {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {editingProduct ? 'Update Product' : 'Add Product'}
