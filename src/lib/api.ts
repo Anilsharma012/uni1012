@@ -75,6 +75,9 @@ export async function api(path: string, options: RequestInit = {}) {
     // Provide lightweight mock fallback for common admin endpoints so the UI can be inspected.
     try {
       const p = path.toLowerCase();
+      if (p.includes('/api/wishlist')) {
+        return { ok: true, status: 200, json: { ok: true, data: [] } };
+      }
       if (p.includes('/api/auth/users')) {
         return {
           ok: true,
