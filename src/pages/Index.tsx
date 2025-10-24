@@ -12,6 +12,9 @@ import heroImg from "@/assets/hero-cosmic.jpg";
 import tshirtImg from "@/assets/product-tshirt-1.jpg";
 import pantsImg from "@/assets/product-pants-1.jpg";
 import hoodieImg from "@/assets/product-hoodie-1.jpg";
+import capImg from "@/assets/product-cap-1.jpg";
+import jacketImg from "@/assets/product-jacket-1.jpg";
+import backpackImg from "@/assets/product-backpack-1.jpg";
 import { NewsTicker } from "@/components/NewsTicker";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { api } from "@/lib/api";
@@ -62,6 +65,13 @@ function slugify(input: string) {
 }
 
 const Index = () => {
+  // Hero rotation state
+  const heroImages = [heroImg, tshirtImg, pantsImg, hoodieImg, capImg, jacketImg, backpackImg];
+  const categoryLetters = ['T', 'D', 'H'];
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+  const [nextHeroIndex, setNextHeroIndex] = useState(1);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
   // Featured Products state
   const [featuredProducts, setFeaturedProducts] = useState<ProductRow[]>([]);
   const [featuredLoading, setFeaturedLoading] = useState(true);
@@ -71,6 +81,20 @@ const Index = () => {
   const [newArrivals, setNewArrivals] = useState<ProductRow[]>([]);
   const [newArrivalsLoading, setNewArrivalsLoading] = useState(true);
   const [newArrivalsError, setNewArrivalsError] = useState<string | null>(null);
+
+  // Hero image rotation effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentHeroIndex((prev) => (prev + 1) % heroImages.length);
+        setNextHeroIndex((prev) => (prev + 1) % heroImages.length);
+        setIsTransitioning(false);
+      }, 500);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
 
   // Categories + mixed products state
   const [cats, setCats] = useState<CategoryRow[]>([]);
@@ -284,15 +308,58 @@ const Index = () => {
 
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden mt-16">
+        <style>{`
+          @keyframes fadeInOut {
+            0% { opacity: 1; }
+            40% { opacity: 1; }
+            50% { opacity: 0; }
+            60% { opacity: 0; }
+            100% { opacity: 1; }
+          }
+        `}</style>
+
+        {/* Rotating background images */}
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center transition-opacity duration-500"
           style={{
-            backgroundImage: `url(${heroImg})`,
+            backgroundImage: `url(${heroImages[currentHeroIndex]})`,
+            opacity: isTransitioning ? 0 : 1,
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background"></div>
         </div>
-        
+
+        {/* Next image preloading */}
+        <div
+          className="absolute inset-0 bg-cover bg-center transition-opacity duration-500"
+          style={{
+            backgroundImage: `url(${heroImages[nextHeroIndex]})`,
+            opacity: isTransitioning ? 1 : 0,
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background"></div>
+        </div>
+
+        {/* Overlaid Category Letters */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+          <div className="flex gap-8 md:gap-16">
+            {categoryLetters.map((letter, idx) => (
+              <div
+                key={idx}
+                className="text-red-500"
+                style={{
+                  fontSize: 'clamp(120px, 25vw, 400px)',
+                  fontWeight: 'bold',
+                  lineHeight: 1,
+                  letterSpacing: '-0.05em',
+                }}
+              >
+                {letter}
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           <p className="text-sm tracking-[0.3em] text-primary mb-4 uppercase font-medium">
             Welcome to the Universe
