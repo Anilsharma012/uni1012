@@ -65,6 +65,13 @@ function slugify(input: string) {
 }
 
 const Index = () => {
+  // Hero rotation state
+  const heroImages = [heroImg, tshirtImg, pantsImg, hoodieImg, capImg, jacketImg, backpackImg];
+  const categoryLetters = ['T', 'D', 'H'];
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+  const [nextHeroIndex, setNextHeroIndex] = useState(1);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
   // Featured Products state
   const [featuredProducts, setFeaturedProducts] = useState<ProductRow[]>([]);
   const [featuredLoading, setFeaturedLoading] = useState(true);
