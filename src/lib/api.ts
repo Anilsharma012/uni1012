@@ -56,79 +56,71 @@ export async function api(path: string, options: RequestInit = {}) {
   }
 
   try {
-    try {
-      const token = (typeof window !== 'undefined') ? localStorage.getItem('token') : null;
-      const headers = { "Content-Type": "application/json", ...(options.headers || {}) } as Record<string,string>;
-      if (token) headers['Authorization'] = `Bearer ${token}`;
+    const token = (typeof window !== 'undefined') ? localStorage.getItem('token') : null;
+    const headers = { "Content-Type": "application/json", ...(options.headers || {}) } as Record<string,string>;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const res = await fetch(url, {
-        credentials: "include",
-        headers,
-        ...options,
-      });
+    const res = await fetch(url, {
+      credentials: "include",
+      headers,
+      ...options,
+    });
 
-      const json = await res.json().catch(() => ({}));
-      return { ok: res.ok, status: res.status, json };
-    } catch (networkError: any) {
-      // Handle network errors (including CORS, connection refused, etc.)
-      console.warn("Network error during fetch:", networkError instanceof Error ? networkError.message : networkError);
-      throw networkError;
-    }
+    const json = await res.json().catch(() => ({}));
+    return { ok: res.ok, status: res.status, json };
   } catch (error: any) {
     // Network failures are common in preview/iframe environments; return demo fallbacks and avoid noisy errors.
-    console.warn("API fetch failed (using mock fallback):", url, String(error?.message || error));
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.warn("API fetch failed (using mock fallback):", url, errorMsg);
+
     // Preview environments (like the remote iframe) often can't reach localhost backend.
     // Provide lightweight mock fallback for common admin endpoints so the UI can be inspected.
-    try {
-      const p = path.toLowerCase();
-      if (p.includes('/api/wishlist')) {
-        return { ok: true, status: 200, json: { ok: true, data: [] } };
-      }
-      if (p.includes('/api/auth/users')) {
-        return {
-          ok: true,
-          status: 200,
-          json: { ok: true, data: [
-            { _id: 'demo-1', name: 'Sachin', email: 'sachin@gmail.com', role: 'user' },
-            { _id: 'demo-2', name: 'UNI10 Admin', email: 'uni10@gmail.com', role: 'admin' },
-          ] },
-        };
-      }
-      if (p.includes('/api/products')) {
-        return {
-          ok: true,
-          status: 200,
-          json: { ok: true, data: [
-            { id: 'prod-1', name: 'Demo Tee', price: 499, category: 'T-Shirts', image: '/src/assets/product-tshirt-1.jpg', stock: 10 },
-            { id: 'prod-2', name: 'Demo Hoodie', price: 1299, category: 'Hoodies', image: '/src/assets/product-hoodie-1.jpg', stock: 5 },
-          ] },
-        };
-      }
-      if (p.includes('/api/orders')) {
-        return {
-          ok: true,
-          status: 200,
-          json: { ok: true, data: [
-            {
-              _id: 'order-demo-1',
-              id: 'order-demo-1',
-              total: 1498,
-              total_amount: 1498,
-              status: 'pending',
-              items: [{ productId: 'prod-1', name: 'Demo Tee', qty: 2, price: 499 }],
-              createdAt: new Date().toISOString(),
-              user: { _id: 'demo-1', name: 'Sachin', email: 'sachin@gmail.com' },
-            },
-          ] },
-        };
-      }
-      if (p.includes('/api/settings')) {
-        return { ok: true, status: 200, json: { ok: true, data: {} } };
-      }
-    } catch (mErr) {
-      console.error('Mock fallback failed', mErr);
+    const p = path.toLowerCase();
+    if (p.includes('/api/wishlist')) {
+      return { ok: true, status: 200, json: { ok: true, data: [] } };
+    }
+    if (p.includes('/api/auth/users')) {
+      return {
+        ok: true,
+        status: 200,
+        json: { ok: true, data: [
+          { _id: 'demo-1', name: 'Sachin', email: 'sachin@gmail.com', role: 'user' },
+          { _id: 'demo-2', name: 'UNI10 Admin', email: 'uni10@gmail.com', role: 'admin' },
+        ] },
+      };
+    }
+    if (p.includes('/api/products')) {
+      return {
+        ok: true,
+        status: 200,
+        json: { ok: true, data: [
+          { id: 'prod-1', name: 'Demo Tee', price: 499, category: 'T-Shirts', image: '/src/assets/product-tshirt-1.jpg', stock: 10 },
+          { id: 'prod-2', name: 'Demo Hoodie', price: 1299, category: 'Hoodies', image: '/src/assets/product-hoodie-1.jpg', stock: 5 },
+        ] },
+      };
+    }
+    if (p.includes('/api/orders')) {
+      return {
+        ok: true,
+        status: 200,
+        json: { ok: true, data: [
+          {
+            _id: 'order-demo-1',
+            id: 'order-demo-1',
+            total: 1498,
+            total_amount: 1498,
+            status: 'pending',
+            items: [{ productId: 'prod-1', name: 'Demo Tee', qty: 2, price: 499 }],
+            createdAt: new Date().toISOString(),
+            user: { _id: 'demo-1', name: 'Sachin', email: 'sachin@gmail.com' },
+          },
+        ] },
+      };
+    }
+    if (p.includes('/api/settings')) {
+      return { ok: true, status: 200, json: { ok: true, data: {} } };
     }
 
-    return { ok: false, status: 0, error: String(error) };
+    return { ok: false, status: 0, error: errorMsg };
   }
 }
