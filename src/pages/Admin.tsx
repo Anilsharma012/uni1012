@@ -306,6 +306,9 @@ type ProductFormState = {
   subcategoryId: string;
   stock: number;
   sizes: string[];
+  highlights: string[];
+  longDescription: string;
+  specs: Array<{ key: string; value: string }>;
 };
 
 const EMPTY_FORM: ProductFormState = {
@@ -317,6 +320,9 @@ const EMPTY_FORM: ProductFormState = {
   subcategoryId: '',
   stock: 0,
   sizes: [],
+  highlights: [],
+  longDescription: '',
+  specs: [],
 };
 
 const Admin = () => {
