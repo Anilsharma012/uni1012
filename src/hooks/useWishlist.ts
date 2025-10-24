@@ -21,7 +21,10 @@ export function useWishlist() {
         if (user?._id) {
           try {
             // Load from server only if user is authenticated
-            const result = await api('/api/wishlist');
+            const result = await Promise.resolve(api('/api/wishlist')).catch((err) => {
+              console.warn('Failed to load wishlist from server:', err instanceof Error ? err.message : err);
+              return { ok: false, json: { data: [] } };
+            });
             if (!ignore) {
               if (result?.ok && Array.isArray(result?.json?.data)) {
                 const ids = new Set(
@@ -39,9 +42,9 @@ export function useWishlist() {
               }
             }
           } catch (e) {
-            // Network or parsing error - fallback to localStorage
+            // Additional safety net for any other errors
             if (!ignore) {
-              console.warn('Failed to load wishlist from server:', e instanceof Error ? e.message : e);
+              console.warn('Unexpected error loading wishlist:', e instanceof Error ? e.message : e);
               loadFromStorage();
             }
           }
@@ -59,7 +62,9 @@ export function useWishlist() {
       }
     };
 
-    loadWishlist();
+    loadWishlist().catch((err) => {
+      console.error('Unhandled error in loadWishlist:', err);
+    });
     return () => {
       ignore = true;
     };
