@@ -1053,6 +1053,9 @@ const handleProductSubmit = async (e: React.FormEvent) => {
         sizes: Array.isArray(productForm.sizes) ? productForm.sizes : [],
         categoryId: (productForm as any).categoryId || undefined,
         subcategoryId: (productForm as any).subcategoryId || undefined,
+        highlights: Array.isArray(productForm.highlights) ? productForm.highlights.filter(h => h.trim()) : [],
+        longDescription: productForm.longDescription.trim(),
+        specs: Array.isArray(productForm.specs) ? productForm.specs.filter(s => s.key.trim() && s.value.trim()) : [],
       };
 
       if (editingProduct) {
