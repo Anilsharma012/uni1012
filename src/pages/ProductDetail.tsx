@@ -38,10 +38,14 @@ type P = {
   price?: number;
   category?: string;
   description?: string;
+  longDescription?: string;
+  highlights?: string[];
+  specs?: Array<{ key: string; value: string }>;
   stock?: number;
   image_url?: string;
   images?: string[];
   sizes?: string[];
+  updatedAt?: string;
 };
 
 const ProductDetail = () => {
