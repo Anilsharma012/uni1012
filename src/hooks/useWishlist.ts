@@ -21,7 +21,10 @@ export function useWishlist() {
         if (user?._id) {
           // Load from server only if user is authenticated
           try {
-            const result = await api('/api/wishlist');
+            const result = await api('/api/wishlist').catch((err) => {
+              console.warn('Failed to load wishlist from server:', err?.message || err);
+              return null;
+            });
             if (!ignore) {
               if (result?.ok && Array.isArray(result?.json?.data)) {
                 const ids = new Set(
