@@ -63,7 +63,8 @@ const ProductDetail = () => {
   useEffect(() => {
     (async () => {
       try {
-        const { ok, json } = await api(`/api/products/${id}`);
+        const cacheKey = `?v=${Date.now()}`;
+        const { ok, json } = await api(`/api/products/${id}${cacheKey}`);
         if (!ok) throw new Error(json?.message || json?.error || 'Failed to load product');
         setProduct(json?.data as P);
       } catch (e: any) {
