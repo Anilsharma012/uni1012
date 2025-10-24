@@ -56,18 +56,24 @@ export async function api(path: string, options: RequestInit = {}) {
   }
 
   try {
-    const token = (typeof window !== 'undefined') ? localStorage.getItem('token') : null;
-    const headers = { "Content-Type": "application/json", ...(options.headers || {}) } as Record<string,string>;
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    try {
+      const token = (typeof window !== 'undefined') ? localStorage.getItem('token') : null;
+      const headers = { "Content-Type": "application/json", ...(options.headers || {}) } as Record<string,string>;
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const res = await fetch(url, {
-      credentials: "include",
-      headers,
-      ...options,
-    });
+      const res = await fetch(url, {
+        credentials: "include",
+        headers,
+        ...options,
+      });
 
-    const json = await res.json().catch(() => ({}));
-    return { ok: res.ok, status: res.status, json };
+      const json = await res.json().catch(() => ({}));
+      return { ok: res.ok, status: res.status, json };
+    } catch (networkError: any) {
+      // Handle network errors (including CORS, connection refused, etc.)
+      console.warn("Network error during fetch:", networkError instanceof Error ? networkError.message : networkError);
+      throw networkError;
+    }
   } catch (error: any) {
     // Network failures are common in preview/iframe environments; return demo fallbacks and avoid noisy errors.
     console.warn("API fetch failed (using mock fallback):", url, String(error?.message || error));
