@@ -20,30 +20,20 @@ export function useWishlist() {
       try {
         if (user?._id) {
           // Load from server only if user is authenticated
-          try {
-            const result = await api('/api/wishlist').catch((err) => {
-              console.warn('Failed to load wishlist from server:', err?.message || err);
-              return null;
-            });
-            if (!ignore) {
-              if (result?.ok && Array.isArray(result?.json?.data)) {
-                const ids = new Set(
-                  result.json.data.map((item: any) => String(item.productId || item.product_id || ''))
-                );
-                setWishlistIds(ids);
-                try {
-                  localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(Array.from(ids)));
-                } catch (e) {
-                  console.warn('Failed to save wishlist to localStorage', e);
-                }
-              } else {
-                // Fallback to localStorage on any error
-                loadFromStorage();
+          const result = await api('/api/wishlist');
+          if (!ignore) {
+            if (result?.ok && Array.isArray(result?.json?.data)) {
+              const ids = new Set(
+                result.json.data.map((item: any) => String(item.productId || item.product_id || ''))
+              );
+              setWishlistIds(ids);
+              try {
+                localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(Array.from(ids)));
+              } catch (e) {
+                console.warn('Failed to save wishlist to localStorage', e);
               }
-            }
-          } catch (e) {
-            if (!ignore) {
-              console.warn('Failed to load wishlist from server:', e);
+            } else {
+              // Fallback to localStorage on any error
               loadFromStorage();
             }
           }
@@ -52,6 +42,11 @@ export function useWishlist() {
           if (!ignore) {
             loadFromStorage();
           }
+        }
+      } catch (e) {
+        if (!ignore) {
+          console.warn('Failed to load wishlist:', e);
+          loadFromStorage();
         }
       } finally {
         if (!ignore) {
