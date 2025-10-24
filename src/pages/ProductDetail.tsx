@@ -82,7 +82,8 @@ const ProductDetail = () => {
   const outOfStock = stockNum === 0;
   const refetchProduct = useCallback(async () => {
     try {
-      const { ok, json } = await api(`/api/products/${id}`);
+      const cacheKey = `?v=${Date.now()}`;
+      const { ok, json } = await api(`/api/products/${id}${cacheKey}`);
       if (ok) setProduct(json?.data as P);
     } catch {}
   }, [id]);
