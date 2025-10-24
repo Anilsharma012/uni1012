@@ -291,32 +291,11 @@ const ProductDetail = () => {
                 {product?.longDescription && (
                   <div id="description" className="mb-8">
                     <h3 className="text-lg font-semibold mb-4">Description</h3>
-                    <div className="text-muted-foreground leading-relaxed">
+                    <div className="text-muted-foreground leading-relaxed space-y-2">
                       {descriptionExpanded || (product.longDescription.length <= 250) ? (
-                        <div
-                          className="prose prose-sm max-w-none"
-                          dangerouslySetInnerHTML={{
-                            __html: product.longDescription
-                              .replace(/&/g, '&amp;')
-                              .replace(/</g, '&lt;')
-                              .replace(/>/g, '&gt;')
-                              .replace(/"/g, '&quot;')
-                              .replace(/'/g, '&#039;')
-                              .replace(/\n/g, '<br />')
-                          }}
-                        />
+                        <p className="whitespace-pre-wrap">{product.longDescription}</p>
                       ) : (
-                        <div
-                          className="prose prose-sm max-w-none"
-                          dangerouslySetInnerHTML={{
-                            __html: `${product.longDescription.substring(0, 250)}...`.replace(/&/g, '&amp;')
-                              .replace(/</g, '&lt;')
-                              .replace(/>/g, '&gt;')
-                              .replace(/"/g, '&quot;')
-                              .replace(/'/g, '&#039;')
-                              .replace(/\n/g, '<br />')
-                          }}
-                        />
+                        <p className="whitespace-pre-wrap">{product.longDescription.substring(0, 250)}...</p>
                       )}
                       {product.longDescription.length > 250 && (
                         <button
