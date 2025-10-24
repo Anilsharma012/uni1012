@@ -82,6 +82,20 @@ const Index = () => {
   const [newArrivalsLoading, setNewArrivalsLoading] = useState(true);
   const [newArrivalsError, setNewArrivalsError] = useState<string | null>(null);
 
+  // Hero image rotation effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentHeroIndex((prev) => (prev + 1) % heroImages.length);
+        setNextHeroIndex((prev) => (prev + 1) % heroImages.length);
+        setIsTransitioning(false);
+      }, 500);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
+
   // Categories + mixed products state
   const [cats, setCats] = useState<CategoryRow[]>([]);
   const [catsLoading, setCatsLoading] = useState(true);
