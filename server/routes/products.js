@@ -158,6 +158,7 @@ router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
     if (typeof body.name !== 'undefined') updates.title = body.name;
     if (typeof body.title !== 'undefined') updates.title = body.title;
     if (typeof body.description !== 'undefined') updates.description = body.description;
+    if (typeof body.longDescription !== 'undefined') updates.longDescription = body.longDescription;
     if (typeof body.price !== 'undefined') updates.price = Number(body.price);
     if (typeof body.category !== 'undefined') updates.category = body.category;
     if (typeof body.stock !== 'undefined') updates.stock = Number(body.stock);
@@ -166,6 +167,13 @@ router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
     if (typeof body.image_url !== 'undefined') updates.images = [body.image_url];
     if (Array.isArray(body.images)) updates.images = body.images;
     if (Array.isArray(body.sizes)) updates.sizes = body.sizes;
+    if (Array.isArray(body.highlights)) updates.highlights = body.highlights.slice(0, 8);
+    if (Array.isArray(body.specs)) {
+      updates.specs = body.specs.map(spec => ({
+        key: String(spec.key || '').trim(),
+        value: String(spec.value || '').trim()
+      })).filter(spec => spec.key && spec.value);
+    }
 
     // If Admin UI sent categoryId/subcategoryId, resolve to category name/slug
     try {
@@ -175,6 +183,32 @@ router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
         if (catDoc) updates.category = catDoc.name || catDoc.slug;
       }
     } catch (catErr) {}
+
+    const doc = await Product.findByIdAndUpdate(id, updates, { new: true }).lean();
+    if (!doc) return res.status(404).json({ ok: false, message: 'Not found' });
+    return res.json({ ok: true, data: doc });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
+// PATCH endpoint for partial updates (e.g., just details)
+router.patch('/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const body = req.body || {};
+    const updates = {};
+
+    // Only update fields that are explicitly provided
+    if (typeof body.longDescription !== 'undefined') updates.longDescription = body.longDescription;
+    if (Array.isArray(body.highlights)) updates.highlights = body.highlights.slice(0, 8);
+    if (Array.isArray(body.specs)) {
+      updates.specs = body.specs.map(spec => ({
+        key: String(spec.key || '').trim(),
+        value: String(spec.value || '').trim()
+      })).filter(spec => spec.key && spec.value);
+    }
 
     const doc = await Product.findByIdAndUpdate(id, updates, { new: true }).lean();
     if (!doc) return res.status(404).json({ ok: false, message: 'Not found' });
